@@ -12,17 +12,31 @@ import java.util.ArrayList;
  * @author czyrux
  */
 public class TagContainer {
+    private String _code;
     private ArrayList<Tag> _tags;
     private Color _color;
+    private Boolean _followed;
     
-    public TagContainer( Color c ) {
+    public TagContainer( String code , Color c ) {
+        _code = code;
         _color = c;
         _tags = new ArrayList<Tag>();
+        _followed = true;
     }
     
-    public TagContainer() {
+    public TagContainer( String code ) {
+        _code = code;
         _color = Color.BLACK;
         _tags = new ArrayList<Tag>();
+        _followed = true;
+    }
+    
+    public void setCode ( String code) {
+        _code = code;
+    }
+    
+    public String getCode () {
+        return _code;
     }
     
     public void setColor ( Color c ) {
@@ -40,4 +54,13 @@ public class TagContainer {
     public void setTag( Tag t ) {
         _tags.add(t);
     }
+
+    public void setFollowed(Boolean b) {
+        _followed = b;
+    }
+    
+    public Boolean getFollowed() {
+        return _followed;
+    }
 }
+

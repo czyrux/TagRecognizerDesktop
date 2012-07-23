@@ -14,6 +14,7 @@ import de.unidue.tagrecognition.Message;
 import de.unidue.tagrecognition.Tag;
 import de.unidue.tagrecognition.TagContainer;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -21,6 +22,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 /**
  *
@@ -35,8 +43,17 @@ public class TagRecognitionView extends javax.swing.JPanel {
         initialStateButtons();
         
         _followedTags = new HashMap();
-        _followedTags.put("12321232", new TagContainer(Color.BLUE));
-        //_followedTags.put("13221113", new TagContainer(Color.BLUE));
+        _followedTags.put("12321232", new TagContainer("12321232",Color.BLUE));
+        _followedTags.put("13221113", new TagContainer("13221113",Color.GREEN));
+        _followedTags.put("13221115", new TagContainer("13221115",Color.RED));
+        _followedTags.put("13221116", new TagContainer("13221116",Color.YELLOW));
+        _followedTags.put("13221117", new TagContainer("13221117",Color.GRAY));
+        _followedTags.put("13221118", new TagContainer("13221118",Color.RED));
+        _followedTags.put("13221119", new TagContainer("13221119",Color.BLUE));
+        _followedTags.put("13221120", new TagContainer("13221120",Color.GREEN));
+        
+        fillTable();
+        
         
         _viewActive = false;
         jTabbedPane1.setEnabledAt(0, false);
@@ -46,6 +63,102 @@ public class TagRecognitionView extends javax.swing.JPanel {
         sf.start();
     }
 
+    public class MyRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                     boolean isSelected, boolean hasFocus,
+                                                     int row, int column) {
+            ImageIcon icon = null;
+            if(value.equals(Color.RED)) {
+                icon = new ImageIcon(getClass().getResource("/tagrecognizerdesktop/resources/red24.png"));
+            } else if(value.equals(Color.GREEN)) {
+                icon = new ImageIcon(getClass().getResource("/tagrecognizerdesktop/resources/green24.png"));
+            } else if(value.equals(Color.BLUE)) {
+                icon = new ImageIcon(getClass().getResource("/tagrecognizerdesktop/resources/blue24.png"));
+            } else if(value.equals(Color.YELLOW)) {
+                icon = new ImageIcon(getClass().getResource("/tagrecognizerdesktop/resources/yellow24.png"));
+            } else if(value.equals(Color.GRAY)) {
+                icon = new ImageIcon(getClass().getResource("/tagrecognizerdesktop/resources/grey24.png"));
+            } else {
+                icon = new ImageIcon(getClass().getResource("/tagrecognizerdesktop/resources/grey24.png"));
+            }
+
+            setIcon(icon);
+            setHorizontalAlignment(CENTER);
+            return this;
+      }
+    }
+    
+    private void fillTable() {
+        //Clean table
+        while(((DefaultTableModel)jTable_follow.getModel()).getRowCount()>0)
+            ((DefaultTableModel)jTable_follow.getModel()).removeRow(0);
+
+        //Get info
+        TagContainer[] _l_tags = new TagContainer[_followedTags.values().size()];
+        _l_tags = (TagContainer[]) _followedTags.values().toArray(_l_tags);
+
+        // Put values on table   
+        String[] columnNames = {"Followed","Color","Code"};
+        Object[][] data = new Object[_l_tags.length][];
+        for(int i=0;i<_l_tags.length;i++) {
+            data[i] = new Object[3];
+            data[i][0] = _l_tags[i].getFollowed();
+            data[i][1] = _l_tags[i].getColor();
+            data[i][2] = _l_tags[i].getCode();
+        }
+        
+        //Define model
+        _model = new DefaultTableModel(data, columnNames) {
+            Class[] types = new Class [] {
+                java.lang.Boolean.class, java.lang.Object.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                true, false, false
+            };
+
+            @Override
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+            
+        };
+
+        //Render to align text
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
+        renderer.setHorizontalAlignment(JLabel.CENTER);
+
+
+        jTable_follow.setModel(_model);
+        jTable_follow.getColumn("Color").setCellRenderer(new MyRenderer());
+        jTable_follow.setRowHeight(25);
+        jTable_follow.getColumn("Color").setWidth(40);
+        jTable_follow.getColumn("Color").setMinWidth(40);
+        jTable_follow.getColumn("Color").setMaxWidth(40);
+        jTable_follow.getColumn("Code").setCellRenderer(renderer);
+        
+        //add listener to column
+        jTable_follow.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event ) {
+                int row = jTable_follow.getSelectedRow();
+                String code = (String)jTable_follow.getValueAt(row,2);
+                TagContainer t = (TagContainer) _followedTags.get(code);
+                if (t!=null) {
+                    //Because this event is called to times, with selection and with change of value
+                    if ( !jTable_follow.getValueAt(row,0).equals(t.getFollowed()) ) {
+                        t.setFollowed((Boolean)jTable_follow.getValueAt(row,0));
+                    }
+                }
+            }
+        });
+    }
+    
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -67,10 +180,15 @@ public class TagRecognitionView extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jLabel_log = new javax.swing.JLabel();
         jButton_help = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane_table = new javax.swing.JScrollPane();
+        jTable_follow = new javax.swing.JTable();
 
         jScrollBar1.setName("jScrollBar1"); // NOI18N
 
+        setMinimumSize(new java.awt.Dimension(1024, 600));
         setName("Form"); // NOI18N
+        setPreferredSize(new java.awt.Dimension(1100, 600));
 
         jPanel_controls.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         jPanel_controls.setName("jPanel_controls"); // NOI18N
@@ -125,11 +243,11 @@ public class TagRecognitionView extends javax.swing.JPanel {
             .add(jPanel_controlsLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel_controlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jButton_stop, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)
-                    .add(jButton_start, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)
-                    .add(jButton_calibrate, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)
-                    .add(jButton_receiveImage, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)
-                    .add(jLabel_androidControls, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(jButton_stop, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
+                    .add(jButton_start, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
+                    .add(jButton_calibrate, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
+                    .add(jButton_receiveImage, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
+                    .add(jLabel_androidControls, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel_controlsLayout.setVerticalGroup(
@@ -169,6 +287,62 @@ public class TagRecognitionView extends javax.swing.JPanel {
         jButton_help.setText(resourceMap.getString("jButton_help.text")); // NOI18N
         jButton_help.setName("jButton_help"); // NOI18N
 
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("jPanel1.border.title"))); // NOI18N
+        jPanel1.setName("jPanel1"); // NOI18N
+
+        jScrollPane_table.setName("jScrollPane_table"); // NOI18N
+
+        jTable_follow.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Followed", "Color", "Code"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Boolean.class, java.lang.Object.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                true, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable_follow.setName("jTable_follow"); // NOI18N
+        jScrollPane_table.setViewportView(jTable_follow);
+        jTable_follow.getColumnModel().getColumn(0).setResizable(false);
+        jTable_follow.getColumnModel().getColumn(0).setHeaderValue(resourceMap.getString("jTable_follow.columnModel.title0")); // NOI18N
+        jTable_follow.getColumnModel().getColumn(1).setResizable(false);
+        jTable_follow.getColumnModel().getColumn(1).setHeaderValue(resourceMap.getString("jTable_follow.columnModel.title1")); // NOI18N
+        jTable_follow.getColumnModel().getColumn(2).setResizable(false);
+        jTable_follow.getColumnModel().getColumn(2).setHeaderValue(resourceMap.getString("jTable_follow.columnModel.title2")); // NOI18N
+
+        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jScrollPane_table, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel1Layout.createSequentialGroup()
+                .add(jScrollPane_table, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -176,24 +350,28 @@ public class TagRecognitionView extends javax.swing.JPanel {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jButton_help)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 707, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(jPanel_controls, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 707, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jButton_help))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jPanel_controls, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel_controls, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 278, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(jPanel_controls, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 278, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .add(layout.createSequentialGroup()
                         .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 503, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton_help, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 52, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .add(25, 25, 25))
+                .add(20, 20, 20))
         );
     }// </editor-fold>//GEN-END:initComponents
     
@@ -359,15 +537,18 @@ public class TagRecognitionView extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel_androidControls;
     private javax.swing.JLabel jLabel_image;
     private javax.swing.JLabel jLabel_log;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel_controls;
     private javax.swing.JScrollBar jScrollBar1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane_table;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable jTable_follow;
     // End of variables declaration//GEN-END:variables
     
     private ServerThread _server = null;
     private boolean _viewActive;
     private ImageIcon _image;
     private HashMap _followedTags;
-
+    private TableModel _model;
 }

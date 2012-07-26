@@ -50,7 +50,7 @@ public class DataReceiver implements Runnable {
                 System.out.println("DataReceiver: Waiting data...");
                 //Read object from client
                  o = _in.readObject();
-                //Process message
+                //Process data
                 if ( o instanceof Tag ) {
                     //Read tag from client
                     tag = (Tag)o;

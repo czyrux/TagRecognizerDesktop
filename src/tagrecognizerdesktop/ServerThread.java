@@ -8,6 +8,7 @@ package tagrecognizerdesktop;
  *
  * @author czyrux
  */
+import de.unidue.tagrecognition.Message;
 import java.io.IOException;
 import java.net.ServerSocket;
 
@@ -26,9 +27,11 @@ public class ServerThread implements Runnable {
         DataReceiver w;
         try {
             _serverSocket = new ServerSocket(PORT);
+            _serverSocket.setReuseAddress(true);
             System.out.println("ServerThread: Server created. Listening :" + PORT);
         } catch (IOException e) {
             System.out.println("ServerThread: Unable to create server");
+            _ui.updateUI(Message.ERROR_CREATING_SERVER);
             return;   
         }
 
@@ -45,6 +48,10 @@ public class ServerThread implements Runnable {
                 end = true;
             }
         }
+    }
+    
+    public int getPort() {
+        return PORT;
     }
     
     public void closeServer() {

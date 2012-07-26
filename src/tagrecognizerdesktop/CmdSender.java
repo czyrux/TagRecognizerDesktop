@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 /**
@@ -24,9 +25,11 @@ public class CmdSender implements Runnable {
     private ObjectOutputStream _out = null;
     private ObjectInputStream _in = null;
     private Message _cmd;
+    private TagRecognitionView _ui;
     
-    public CmdSender ( Message cmd ) {
+    public CmdSender ( TagRecognitionView ui , Message cmd ) {
         _cmd = cmd;
+        _ui = ui;
     }
     
     @SuppressWarnings("CallToThreadDumpStack")
@@ -36,7 +39,7 @@ public class CmdSender implements Runnable {
             // Create socket	
             SocketAddress sockaddr = new InetSocketAddress(HOST, PORT);		
             _socket = new Socket();	
-            _socket.connect(sockaddr, 5000); // 2 second connection timeout
+            _socket.connect(sockaddr, 2000); // 2 second connection timeout
 		
             if (_socket.isConnected()) {		
                 System.out.println("SenderCmd: Client connected");		
@@ -66,10 +69,12 @@ public class CmdSender implements Runnable {
             }
 
         } catch (UnknownHostException e) {
+            _ui.updateUI(Message.ERROR_CONNECTING);
             System.out.println("SenderCmd: UnknownHostException");	
-            e.printStackTrace();
+            //e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("SenderCmd: IOException");	
+            System.out.println("SenderCmd: IOException");
+            _ui.updateUI(Message.ERROR_CONNECTING);
             e.printStackTrace();
         } finally {
             //Close sockets and streams

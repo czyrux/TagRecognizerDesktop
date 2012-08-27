@@ -1,28 +1,33 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package tagrecognizerdesktop;
 
-/**
- *
- * @author czyrux
- */
 import de.unidue.tagrecognition.Message;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-
+/**
+ * @brief Implements runnable server thread. 
+ * @author Antonio Manuel Gutierrez Martinez
+ * @version 1.0
+ */
 public class ServerThread implements Runnable {
+    /** Server port */
     private final int PORT = 8080;
+    /** Server socket */
     private ServerSocket _serverSocket ;
     private TagRecognitionView _ui;
 
+    /**
+     * Constructor
+     * @param ui 
+     */
     public ServerThread( TagRecognitionView ui) {
         _serverSocket = null;
         _ui = ui;
     }
 
+    /**
+     * Thread process
+     */
     public void run() {
         DataReceiver w;
         try {
@@ -50,10 +55,17 @@ public class ServerThread implements Runnable {
         }
     }
     
+    /**
+     * Get Port of server
+     * @return 
+     */
     public int getPort() {
         return PORT;
     }
     
+    /**
+     * Close server
+     */
     public void closeServer() {
         if (_serverSocket!=null) {
             try{

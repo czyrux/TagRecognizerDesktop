@@ -11,27 +11,41 @@ import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 /**
- *
- * @author czyrux
+ * @brief Implements runnable client.
+ * @author Antonio Manuel Gutierrez Martinez
+ * @version 1.0
  */
 public class CmdSender implements Runnable {
+    /** Server IP */
     private final String HOST = "192.168.137.5";
+    /** Server Port */
     private final int PORT = 8000;
+    /** Client socket */
     private Socket _socket = null;
+    /** Output stream */
     private ObjectOutputStream _out = null;
+    /** Input stream */
     private ObjectInputStream _in = null;
+    /** Message to send */
     private Message _cmd;
     private TagRecognitionView _ui;
     
+    /**
+     * Constructor
+     * @param ui
+     * @param cmd 
+     */
     public CmdSender ( TagRecognitionView ui , Message cmd ) {
         _cmd = cmd;
         _ui = ui;
     }
     
+    /**
+     * Client work
+     */
     @SuppressWarnings("CallToThreadDumpStack")
     public void run() {	
         Object o = null;	

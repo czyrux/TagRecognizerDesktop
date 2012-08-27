@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package tagrecognizerdesktop;
 
 import de.unidue.tagrecognition.Message;
@@ -13,15 +9,24 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 /**
- *
- * @author czyrux
+ * @brief Manage client connection
+ * @author Antonio Manuel Gutierrez Martinez
+ * @version 1.0
  */
 public class DataReceiver implements Runnable {
+    /** Communication socket */
     private Socket _client;
-    private ObjectInputStream _in;     
+    /** Input stream */
+    private ObjectInputStream _in;
+    /** Output stream */
     private ObjectOutputStream _out;
     private TagRecognitionView _ui;
     
+    /**
+     * Constructor
+     * @param client
+     * @param ui 
+     */
     public DataReceiver ( Socket client , TagRecognitionView ui ) {
         _client = client;
         _in = null;
@@ -102,6 +107,10 @@ public class DataReceiver implements Runnable {
         }
     }
     
+    /**
+     * Action related to receive a command
+     * @param cmd 
+     */
     private void proccessCommand ( String cmd ) {
         if ( cmd.equals(Message.CALIBRATION_FAIL.toString()) ){
                 _ui.updateUI(Message.CALIBRATION_FAIL);
@@ -111,6 +120,10 @@ public class DataReceiver implements Runnable {
         }
     }
     
+    /**
+     * Action related to receive a image
+     * @param cmd 
+     */
     private void proccessImage ( byte[] img ) {
         _ui.updateUI(img);
     }

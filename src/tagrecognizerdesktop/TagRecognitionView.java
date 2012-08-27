@@ -1,13 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
- * TagRecognitionView.java
- *
- * Created on Jul 15, 2012, 6:17:33 PM
- */
 package tagrecognizerdesktop;
 
 import de.unidue.tagrecognition.Message;
@@ -32,8 +22,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 /**
- *
- * @author czyrux
+ * @brief Main View UI
+ * @author Antonio Manuel Gutierrez Martinez
+ * @version 1.0
  */
 public class TagRecognitionView extends javax.swing.JPanel {
 
@@ -80,6 +71,9 @@ public class TagRecognitionView extends javax.swing.JPanel {
         
     }
 
+    /**
+     * Personal implementation of DefaultTableCellRenderer
+     */
     public class MyRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
@@ -106,6 +100,9 @@ public class TagRecognitionView extends javax.swing.JPanel {
       }
     }
     
+    /**
+     * Fill followed table
+     */
     private void fillTable() {
         //Clean table
         while(((DefaultTableModel)jTable_follow.getModel()).getRowCount()>0)
@@ -446,6 +443,9 @@ public class TagRecognitionView extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     
+    /**
+     * Set the buttons to an initial state
+     */
     private void initialStateButtons () {
         jButton_receiveImage.setEnabled(true);
         jButton_start.setEnabled(true);
@@ -453,6 +453,9 @@ public class TagRecognitionView extends javax.swing.JPanel {
         jButton_calibrate.setEnabled(true);
     }
     
+    /**
+     * Actions made closing app
+     */
     public void closeApp() {
         if (_server != null ) {
             _server.closeServer();
@@ -460,6 +463,9 @@ public class TagRecognitionView extends javax.swing.JPanel {
         }
     }
     
+    /**
+     * Actions with calibrate button
+     */
     private void jButton_calibrateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_calibrateActionPerformed
 	//Update state of buttons
         jButton_receiveImage.setEnabled(false);
@@ -475,6 +481,9 @@ public class TagRecognitionView extends javax.swing.JPanel {
         
     }//GEN-LAST:event_jButton_calibrateActionPerformed
 
+    /**
+     * Actions with calibrate button
+     */
     private void jButton_startActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_startActionPerformed
         //Update state of buttons
         jButton_receiveImage.setEnabled(false);
@@ -488,11 +497,17 @@ public class TagRecognitionView extends javax.swing.JPanel {
         sendCMD(Message.START_SEARCH);
     }//GEN-LAST:event_jButton_startActionPerformed
 
+    /**
+     * Actions with stop button
+     */
     private void jButton_stopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_stopActionPerformed
         initialStateButtons();
         sendCMD(Message.STOP_SEARCH);
     }//GEN-LAST:event_jButton_stopActionPerformed
 
+    /**
+     * Actions with to receive image
+     */
     private void jButton_receiveImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_receiveImageActionPerformed
         jButton_receiveImage.setEnabled(false);
         jButton_start.setEnabled(false);
@@ -501,6 +516,9 @@ public class TagRecognitionView extends javax.swing.JPanel {
         sendCMD(Message.SEND_VIEW);
     }//GEN-LAST:event_jButton_receiveImageActionPerformed
 
+    /**
+     * Actions with add tag from followed table
+     */
     private void jButton_addTagActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_addTagActionPerformed
         String code = (String)JOptionPane.showInputDialog(
                     this,
@@ -535,6 +553,9 @@ public class TagRecognitionView extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jButton_addTagActionPerformed
 
+    /**
+     * Actions with remove tag from followed table
+     */
     private void jButton_removeTagActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_removeTagActionPerformed
         int row = jTable_follow.getSelectedRow();
         if (row >= 0) {
@@ -544,6 +565,9 @@ public class TagRecognitionView extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jButton_removeTagActionPerformed
 
+    /**
+     * Show error string on the notification panel
+     */
     private void showError (String s ) {
         JOptionPane.showMessageDialog(this,
                 s, "TagRecognizer Desktop",
@@ -551,12 +575,21 @@ public class TagRecognitionView extends javax.swing.JPanel {
                 new ImageIcon(getClass().getResource("/tagrecognizerdesktop/resources/warning.png")));
     }
     
+    /**
+     * Send cmd to android server application
+     * @param cmd 
+     */
     private void sendCMD(Message cmd) {
         CmdSender sender = new CmdSender(this,cmd);
         Thread sf = new Thread(sender);
         sf.start();
     }
     
+    /**
+     * Get string associated to colour
+     * @param c
+     * @return 
+     */
     private String getStringColor ( Color c ) {
         String color = "";
         if ( c == Color.RED )
@@ -574,6 +607,10 @@ public class TagRecognitionView extends javax.swing.JPanel {
         return color;
     }
     
+    /**
+     * Update UI with the list of tags
+     * @param tags 
+     */
     public synchronized void updateUI(ArrayList<Tag> tags) {
         if ( tags.size() > 0) {
             String info = new String();
@@ -609,6 +646,10 @@ public class TagRecognitionView extends javax.swing.JPanel {
         }
         
     }
+    
+    /**
+     * Set point in the image
+     */
     private void setPoints() {
         if (!_viewActive)
             return;
@@ -631,11 +672,11 @@ public class TagRecognitionView extends javax.swing.JPanel {
                                 (int)((tags.get(i).getY() * _image.getIconHeight()) / 100 ),
                                15, 15);
                     //Draw line
-                    if (i!=0)
+                    /*if (i!=0)
                         g.drawLine((int)((tags.get(i).getX() * _image.getIconWidth()) / 100),
                                 (int)((tags.get(i).getY() * _image.getIconWidth()) / 100),
                                 (int)((tags.get(i-1).getX() * _image.getIconWidth()) / 100),
-                                (int)((tags.get(i-1).getY() * _image.getIconWidth()) / 100));
+                                (int)((tags.get(i-1).getY() * _image.getIconWidth()) / 100));*/
                 }
             }
             
@@ -649,6 +690,10 @@ public class TagRecognitionView extends javax.swing.JPanel {
         jLabel_image.setIcon(new ImageIcon(scaled));
     }
     
+    /**
+     * Update log view with html string
+     * @param info 
+     */
     private void updateLog( String info ) {        
         String backup = jLabel_log.getText();
         backup = backup.replaceAll("<html>", "");
@@ -656,6 +701,10 @@ public class TagRecognitionView extends javax.swing.JPanel {
         jLabel_log.setText("<html>" + backup + info + "</html>");
     }
     
+    /**
+     * Update UI with message
+     * @param msg 
+     */
     public synchronized void updateUI (Message msg ) {
         String str = new String();
         switch(msg) {
@@ -684,6 +733,10 @@ public class TagRecognitionView extends javax.swing.JPanel {
                 
     }
     
+    /**
+     * Update graphic view
+     * @param imgData 
+     */
     public synchronized void updateUI ( byte[] imgData ) {
         
         //Prepare the image
